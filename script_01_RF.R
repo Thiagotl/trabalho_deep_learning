@@ -8,9 +8,7 @@ library(janitor)
 
 set.seed(123)
 
-# ============================================================
-# 1. LEITURA DOS DADOS
-# ============================================================
+# LEITURA DOS DADOS
 
 dados <- read_excel(
   "LIVRARIAS_DORELA.xls",
@@ -20,14 +18,11 @@ dados <- read_excel(
 
 glimpse(dados)
 
-# Ver distribuição da variável resposta
 table(dados$status)
 prop.table(table(dados$status))
 
 
-# ============================================================
-# 2. SELEÇÃO E TRATAMENTO INICIAL DAS VARIÁVEIS
-# ============================================================
+# SELEÇÃO E TRATAMENTO INICIAL DAS VARIÁVEIS
 
 dados_modelo <- dados |>
   mutate(
@@ -40,9 +35,7 @@ dados_modelo <- dados |>
   )
 
 
-# ============================================================
-# 3. DIVISÃO EM TREINO, VALIDAÇÃO E TESTE
-# ============================================================
+# DIVISÃO EM TREINO, VALIDAÇÃO E TESTE
 # Estratégia:
 # 60% treino
 # 20% validação
@@ -141,7 +134,6 @@ rf_modelo <- ranger(
   seed = 123
 )
 
-rf_modelo
 
 
 # PREDIÇÃO NA VALIDAÇÃO COM THRESHOLD 0.50
@@ -295,10 +287,45 @@ metricas_comparacao <- bind_rows(
 ) |>
   select(conjunto, .metric, .estimate)
 
-metricas_comparacao
+mt_final <- metricas_comparacao |> filter(conjunto == "Teste - threshold 0.32")
 
 
 
+matriz_rf_teste <- conf_mat(
+  resultado_rf_teste,
+  truth = status,
+  estimate = .pred_class
+)
+
+matriz_rf_teste
+
+
+
+
+metricas_comparacao_formatada <- metricas_comparacao |>
+  mutate(
+    .estimate = round(.estimate, 4)
+  ) |>
+  pivot_wider(
+    names_from = .metric,
+    values_from = .estimate
+  ) |>
+  rename(
+    Conjunto = conjunto,
+    Acuracia = accuracy,
+    Precisao_MAU = precision,
+    Recall_MAU = recall,
+    F1_MAU = f_meas,
+    Sensibilidade = sens,
+    Especificidade = spec,
+    AUC = roc_auc
+  )
+
+metricas_comparacao_formatada
+
+#################################
+#################################
+#################################
 
 
 

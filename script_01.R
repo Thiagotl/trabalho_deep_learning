@@ -241,7 +241,7 @@ conf_mat(
 
 
 comparacao <- bind_rows(
-  metricas_rf |> mutate(modelo = "Random Forest"),
+  mt_final |> mutate(modelo = "Random Forest"),
   metricas_nn |> mutate(modelo = "Rede Neural MLP")
 ) |>
   select(modelo, .metric, .estimate)
